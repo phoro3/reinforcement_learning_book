@@ -55,7 +55,7 @@ func main() {
 	alpha := 0.05
 	gammma := 0.95
 	e := initEnv()
-	s := sarsa.InitSarsa(e.States, e.Actions, alpha, gammma)
-	sarsa.Learn(e, s, loopNum)
-	s.PrintQTable()
+	target := sarsa.NewSarsa(e.States, e.Actions, alpha, gammma)
+	target.Learn(e, loopNum)
+	target.PrintQTable()
 }

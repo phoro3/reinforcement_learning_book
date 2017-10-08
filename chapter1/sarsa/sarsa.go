@@ -1,44 +1,52 @@
 package sarsa
 
 import (
+	"../env"
+	"../valueCommon"
 	"fmt"
 )
 
 type Sarsa struct {
-	//Qtable[state][action] = Q value
-	qTable map[int]map[int]float64
-	alpha  float64
-	gammma float64
+	*valueCommon.ValueIterateCommon
 }
 
-func (s *Sarsa) InitQTable(states []int, actions []int, initVal float64) {
-	qTable := make(map[int]map[int]float64)
-	for _, state := range states {
-		qTable[state] = make(map[int]float64)
-		for _, action := range actions {
-			qTable[state][action] = initVal
-		}
-	}
-	s.qTable = qTable
+func NewSarsa(states []int, actions []int, alpha float64, gamma float64) *Sarsa {
+	c := valueCommon.ValueIterateCommon{}
+	c.InitQTable(states, actions, 10)
+	c.SetAlpha(alpha)
+	c.SetGammma(gamma)
+	s := Sarsa{&c}
+	return &s
 }
 
 func (s *Sarsa) UpdateQTable(state int, action int, reward float64, nextState int, nextAction int) {
-	s.qTable[state][action] =
-		(1-s.alpha)*s.qTable[state][action] + s.alpha*(reward+s.gammma*s.qTable[nextState][nextAction])
+	value := (1-s.Alpha())*s.QTable(state, action) + s.Alpha()*(reward+s.Gamma()*s.QTable(nextState, nextAction))
+	s.SetQTable(state, action, value)
 }
 
-func (s *Sarsa) SetAlpha(alpha float64) {
-	s.alpha = alpha
-}
-
-func (s *Sarsa) SetGammma(gammma float64) {
-	s.gammma = gammma
-}
-
-func (s *Sarsa) PrintQTable() {
-	for state, _ := range s.qTable {
-		for action, qValue := range s.qTable[state] {
-			fmt.Println(state, action, qValue)
+func (s *Sarsa) runEpisode(e *env.Env) {
+	var action int
+	var nextState int
+	var nextAction int
+	var reward float64
+	for state := e.InitState; ; {
+		action = s.GetRandomAction(e.Actions)
+		reward = e.GetReward(state, action)
+		nextState = e.GetNextState(state, action)
+		nextAction = s.GetRandomAction(e.Actions)
+		s.UpdateQTable(state, action, reward, nextState, nextAction)
+		state = nextState
+		if state == e.EndState {
+			break
 		}
+	}
+}
+
+func (s *Sarsa) Learn(e *env.Env, loopNum int) {
+	for i := 1; i <= loopNum; i++ {
+		if i%10 == 0 {
+			fmt.Println("Episode: ", i)
+		}
+		s.runEpisode(e)
 	}
 }
