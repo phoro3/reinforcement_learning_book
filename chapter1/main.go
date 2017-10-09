@@ -2,7 +2,8 @@ package main
 
 import (
 	"./env"
-	"./sarsa"
+	//"./sarsa"
+	"./qLearning"
 )
 
 func initStateMatrix() map[int]map[int]int {
@@ -53,9 +54,10 @@ func initEnv() *env.Env {
 func main() {
 	loopNum := 3000
 	alpha := 0.05
-	gammma := 0.95
+	gamma := 0.95
 	e := initEnv()
-	target := sarsa.NewSarsa(e.States, e.Actions, alpha, gammma)
+	//target := sarsa.NewSarsa(e.States, e.Actions, alpha, gamma)
+	target := qLearning.NewQLearning(e.States, e.Actions, alpha, gamma)
 	target.Learn(e, loopNum)
 	target.PrintQTable()
 }

@@ -42,6 +42,10 @@ func (c *ValueIterateCommon) QTable(state int, action int) float64 {
 	return c.qTable[state][action]
 }
 
+func (c *ValueIterateCommon) QTableMap(state int) map[int]float64 {
+	return c.qTable[state]
+}
+
 func (c *ValueIterateCommon) SetQTable(state int, action int, value float64) {
 	c.qTable[state][action] = value
 }
